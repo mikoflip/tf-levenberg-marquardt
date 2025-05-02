@@ -318,18 +318,11 @@ class Trainer:
         return loss, outputs, attempt, stop_training
 
     def _compute_num_outputs(self, inputs: Tensor, targets: Tensor) -> Tensor:
-        input_shape = inputs.shape[1:]  # Exclude batch dimension
-        target_shape = targets.shape[1:]
-
-        # Create input and targets with batch size set to 0
-        _inputs = tf.zeros(shape=(0, *input_shape), dtype=inputs.dtype)
-        _targets = tf.zeros(shape=(0, *target_shape), dtype=targets.dtype)
-
         # Pass symbolic inputs through the model
-        outputs = self.model(_inputs)
+        outputs = self.model(inputs)
 
         # Use Keras operations directly
-        residuals = self.loss.residuals(_targets, outputs)
+        residuals = self.loss.residuals(targets, outputs)
 
         # Return the total number of outputs
         return tf.reduce_prod(residuals.shape[1:])
